@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter_realtime_detection/models/appdata.dart';
+import 'forms/imghashpage.dart';
 import 'home.dart';
 
 List<CameraDescription> cameras;
@@ -9,6 +11,7 @@ Future<Null> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
     cameras = await availableCameras();
+    appData.cameras = cameras;
   } on CameraException catch (e) {
     print('Error: $e.code\nError Message: $e.message');
   }
@@ -23,7 +26,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.dark,
       ),
-      home: HomePage(cameras),
+      //home: HomePage(cameras),
+      home: ImgHashPage(),
     );
   }
 }

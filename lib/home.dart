@@ -8,19 +8,33 @@ import 'bndbox.dart';
 import 'models.dart';
 
 class HomePage extends StatefulWidget {
-  final List<CameraDescription> cameras;
+  _HomePageState myState = new _HomePageState();
+  List<CameraDescription> cameras;
+  String model = "";
 
   HomePage(this.cameras);
+  HomePage.withModel(cameras, model) {
+    this.cameras = cameras;
+    this.model = model;
+    myState.init();
+  }
 
   @override
-  _HomePageState createState() => new _HomePageState();
+  _HomePageState createState() => myState;
 }
 
 class _HomePageState extends State<HomePage> {
   List<dynamic> _recognitions;
   int _imageHeight = 0;
   int _imageWidth = 0;
-  String _model = "";
+
+  init() async {
+    String res = await Tflite.loadModel(
+      model: "assets/yolov2_tiny.tflite",
+      labels: "assets/yolov2_tiny.txt",
+    );
+    print(res);
+  }
 
   @override
   void initState() {
@@ -29,7 +43,7 @@ class _HomePageState extends State<HomePage> {
 
   loadModel() async {
     String res;
-    switch (_model) {
+    switch (widget.model) {
       case yolo:
         res = await Tflite.loadModel(
           model: "assets/yolov2_tiny.tflite",
@@ -58,7 +72,7 @@ class _HomePageState extends State<HomePage> {
 
   onSelect(model) {
     setState(() {
-      _model = model;
+      widget.model = model;
     });
     loadModel();
   }
@@ -75,7 +89,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     Size screen = MediaQuery.of(context).size;
     return Scaffold(
-      body: _model == ""
+      body: widget.model == ""
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -103,7 +117,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Camera(
                   widget.cameras,
-                  _model,
+                  widget.model,
                   setRecognitions,
                 ),
                 BndBox(
@@ -112,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                     math.min(_imageHeight, _imageWidth),
                     screen.height,
                     screen.width,
-                    _model),
+                    widget.model),
               ],
             ),
     );
